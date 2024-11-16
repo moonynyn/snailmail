@@ -8,8 +8,9 @@ def onAppStart(app):
 def restartApp(app):
     app.height = 800
     app.width = 1200
+    app.stepsPerSecond = 50
     # Load snails
-    app.snails = []
+    app.snails = [{'image':'aquatic snails/assassin_aquatic Background Removed.png', 'type': 'aquatic'}]
     app.currentSnail = None
     app.snailX = app.width/2-50
     app.snailY = 0
@@ -25,8 +26,8 @@ def restartApp(app):
     loadSnail(app)
     
 def loadSnail(app):
-    if not app.gameOver:
-        # app.currentSnail = random.choice(app.snails)
+    if not app.gameOver and app.currentSnail == None:
+        app.currentSnail = random.choice(app.snails)
         app.snailX = app.width/2-50
         app.snailY = 0
 
@@ -77,8 +78,9 @@ def onMousePress(app, mouseX, mouseY):
     if app.splashScreen:
         app.splashScreen = False    
     
-    if ((app.snailX <= mouseX <= app.snailX + 100) and
-        (app.snailY <= mouseY <= app.snailY + 100)):
+    imageWidth, imageHeight = getImageSize(app.currentSnail['image'])
+    if ((app.snailX <= mouseX <= app.snailX+imageWidth) and
+        (app.snailY <= mouseY <= app.snailY+imageHeight)):
         app.isDragging = True
         app.dragOffsetX = mouseX - app.snailX
         app.dragOffsetY = mouseY - app.snailY
@@ -86,6 +88,7 @@ def onMousePress(app, mouseX, mouseY):
     if app.gameOver:
         app.gameOver = False
         app.splashScreen = True
+            
 
 def onMouseDrag(app, mouseX, mouseY):
     if app.isDragging:
@@ -98,8 +101,10 @@ def onMouseRelease(app, mouseX, mouseY):
 
     if app.snailY >= app.height - 150:
         if mouseX < app.width/2 and app.currentSnail['type'] == 'aquatic':
+            app.currentSnail = None
             loadSnail(app)
         elif mouseX >= app.width/2 and app.currentSnail['type'] == 'land':
+            app.currentSnail = None
             loadSnail(app)
         else:
             app.lives -= 1
