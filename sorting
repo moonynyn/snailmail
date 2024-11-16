@@ -1,0 +1,78 @@
+from cmu_graphics import *
+import random
+
+def onAppStart(app):
+    app.height = 800
+    app.width = 1200
+    app.splashScreen = True
+    app.snails = []
+    app.currentSnail = None
+    app.snailX = 200
+    app.snailY = 0
+    app.snailSpeed = 1
+    app.lives = 3
+    app.gameOver = False
+    loadSnail(app)
+    app.pinkColor = rgb(254,213,255)
+
+def loadSnail(app):
+    if not app.gameOver:
+        # app.currentSnail = None
+        app.snailY = 0
+
+def redrawAll(app):
+    if app.splashScreen:
+        drawSplashScreen(app)
+
+    else:
+        if app.gameOver:
+            # Add text on what to do after you die
+            drawLabel('Game Over!', app.width/2, app.height/2, size=60,
+                    font='monospace', align='center')
+        if app.currentSnail:
+            drawImage(app.currentSnail['image'], app.snailX, app.snailY)
+
+        # Sorting areas
+        drawRect(0, app.height-150, app.width/2, 150, fill='lightSeaGreen')
+        drawLabel("Aquatic", app.width/4, app.height-75, size=40,
+                bold=True, font='monospace')
+        drawRect(app.width/2, app.height-150, app.width/2, 150, fill='oliveDrab')
+        drawLabel("Land", 3*app.width/4, app.height-75, size=40,
+                bold=True, font='monospace')
+
+def drawSplashScreen(app):
+    drawRect(0, 0, app.width, app.height, fill=app.pinkColor)
+    drawLabel('Snail Sorting', app.width/2, app.height/2-150, size=60,
+              bold=True, font='monospace', fill='oliveDrab', align='center')
+    drawLabel('Match the snail to its environment by dragging to the correct box',
+              app.width/2, app.height/2-100, size=20, bold=True, font='monospace',
+              fill='oliveDrab', align='center')
+    drawLabel('You have three lives', app.width/2, app.height/2-70, size=20,
+              bold=True, font='monospace', fill='oliveDrab', align='center')
+    drawLabel('Click to begin', app.width/2, app.height/2-40, size=20,
+              bold=True, font='monospace', fill='oliveDrab', align='center')
+
+def onMousePress(app, mouseX, mouseY):
+    if app.splashScreen:
+        app.splashScreen = False    
+    
+    if app.snailY >= app.height - 150:
+        if mouseX < app.width // 2 and app.currentSnail['type'] == 'aquatic':
+            loadNewSnail(app)
+        elif mouseX >= app.width // 2 and app.currentSnail['type'] == 'land':
+            loadNewSnail(app)
+        else:
+            app.lives -= 1
+            if app.lives == 0:
+                app.gameOver = True
+
+def onStep(app):
+    if not app.gameOver:
+        app.snailY += app.snailSpeed
+        if app.snailY >= app.height - 150:
+            app.lives -= 1
+
+def main():
+    runApp(width=1200, height=800)
+
+main()
