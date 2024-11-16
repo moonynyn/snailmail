@@ -2,65 +2,105 @@ from cmu_graphics import *
 import random
 
 def onAppStart(app):
+    app.splashScreen = True
+    restartApp(app)
+
+def restartApp(app):
     app.height = 800
     app.width = 1200
-    app.splashScreen = True
+    # Load snails
     app.snails = []
     app.currentSnail = None
-    app.snailX = 200
+    app.snailX = app.width/2-50
     app.snailY = 0
-    app.snailSpeed = 1
+    app.snailSpeed = 5
     app.lives = 3
-    app.gameOver = False
-    loadSnail(app)
+    app.isDragging = False
+    app.dragOffsetX = 0
+    app.dragOffsetY = 0
+    
     app.pinkColor = rgb(254,213,255)
 
+    app.gameOver = False
+    loadSnail(app)
+    
 def loadSnail(app):
     if not app.gameOver:
-        # app.currentSnail = None
+        # app.currentSnail = random.choice(app.snails)
+        app.snailX = app.width/2-50
         app.snailY = 0
 
 def redrawAll(app):
+    # Draw lives on board (loop through lives)
     if app.splashScreen:
         drawSplashScreen(app)
+    
+    elif app.gameOver:
+        drawRect(0, 0, app.width, app.height, fill=app.pinkColor)
+        drawLabel('Game Over!', app.width/2, app.height/2-150, size=60,
+                  bold=True, font='monospace', align='center')
+        # Home button?
+        drawLabel('Click to try again', app.width/2, app.height/2-80,
+                   size=30, bold=True, font='monospace', align='center')
+        drawLabel('Or press the home button to return'+
+                  ' to the main page', app.width/2, app.height/2-50,
+                   size=30, bold=True, font='monospace', align='center')
 
     else:
-        if app.gameOver:
-            # Add text on what to do after you die
-            drawLabel('Game Over!', app.width/2, app.height/2, size=60,
-                    font='monospace', align='center')
-        if app.currentSnail:
-            drawImage(app.currentSnail['image'], app.snailX, app.snailY)
+        drawRect(0, 0, app.width, app.height, fill=app.pinkColor)
 
         # Sorting areas
         drawRect(0, app.height-150, app.width/2, 150, fill='lightSeaGreen')
         drawLabel("Aquatic", app.width/4, app.height-75, size=40,
                 bold=True, font='monospace')
-        drawRect(app.width/2, app.height-150, app.width/2, 150, fill='oliveDrab')
+        drawRect(app.width/2, app.height-150, app.width/2, 150,
+                 fill='oliveDrab')
         drawLabel("Land", 3*app.width/4, app.height-75, size=40,
                 bold=True, font='monospace')
+        
+        if app.currentSnail:
+            drawImage(app.currentSnail['image'], app.snailX, app.snailY)
 
 def drawSplashScreen(app):
     drawRect(0, 0, app.width, app.height, fill=app.pinkColor)
     drawLabel('Snail Sorting', app.width/2, app.height/2-150, size=60,
               bold=True, font='monospace', fill='oliveDrab', align='center')
     drawLabel('Match the snail to its environment by dragging to the correct box',
-              app.width/2, app.height/2-100, size=20, bold=True, font='monospace',
+              app.width/2, app.height/2-80, size=20, bold=True, font='monospace',
               fill='oliveDrab', align='center')
-    drawLabel('You have three lives', app.width/2, app.height/2-70, size=20,
+    drawLabel('You have three lives', app.width/2, app.height/2-50, size=20,
               bold=True, font='monospace', fill='oliveDrab', align='center')
-    drawLabel('Click to begin', app.width/2, app.height/2-40, size=20,
+    drawLabel('Click to begin', app.width/2, app.height/2-20, size=20,
               bold=True, font='monospace', fill='oliveDrab', align='center')
 
 def onMousePress(app, mouseX, mouseY):
     if app.splashScreen:
         app.splashScreen = False    
     
+    if ((app.snailX <= mouseX <= app.snailX + 100) and
+        (app.snailY <= mouseY <= app.snailY + 100)):
+        app.isDragging = True
+        app.dragOffsetX = mouseX - app.snailX
+        app.dragOffsetY = mouseY - app.snailY
+    
+    if app.gameOver:
+        app.gameOver = False
+        app.splashScreen = True
+
+def onMouseDrag(app, mouseX, mouseY):
+    if app.isDragging:
+        app.snailX = mouseX - app.dragOffsetX
+        app.snailY = mouseY - app.dragOffsetY
+
+def onMouseRelease(app, mouseX, mouseY):
+    if app.isDragging:
+        app.isDragging = False
+
     if app.snailY >= app.height - 150:
-        if mouseX < app.width // 2 and app.currentSnail['type'] == 'aquatic':
-            loadNewSnail(app)
-        elif mouseX >= app.width // 2 and app.currentSnail['type'] == 'land':
-            loadNewSnail(app)
+        if mouseX < app.width/2 and app.currentSnail['type'] == 'aquatic':
+            loadSnail(app)
+        elif mouseX >= app.width/2 and app.currentSnail['type'] == 'land':
+            loadSnail(app)
         else:
             app.lives -= 1
             if app.lives == 0:
