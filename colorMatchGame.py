@@ -16,34 +16,58 @@ def onAppStart(app):
     app.coloring = False
     app.board = [(['white'] * app.userCols) for row in range(app.userRows)]
     app.fillColor = 'No Color'
+    app.mixColor = 'white'
+    app.submitColor = 'lightGreen'
+    app.submitted = False
+    app.score = 0
 
 def redrawAll(app):
     drawBackground(app)
     drawUserBoard(app)
-    drawSelectionLabels(app)
+    drawSelectionLabels(app) #screen before game starts
+    drawSubmitButton(app)
+    drawColorMixerDis(app)
+    if app.submitted:
+        drawSuccess(app)
+
+def drawSuccess(app):
+    drawRect(0,0,app.width, app.height, fill = rgb(254,213,255))
+    drawRect(app.width*0.5-300, app.height*0.5 - 150, 300, 300, fill = app.mixColor)
+    drawRect(app.width*0.5, app.height*0.5 - 150, 300, 300, \
+             fill = app.secretColor)
+    drawLabel(f'You scored {app.score}%!', app.width*0.5, app.height*0.5 + 200, \
+              size = 40, font = 'monospace', bold = True)
+
+def drawColorMixerDis(app):
+        
+    drawRect(365, app.height *0.3, 50, 400, fill = app.mixColor)
+
+def drawSubmitButton(app):
+    drawRect(75, app.height*0.65, 250, 120, fill = app.submitColor, border = 'green',\
+             borderWidth = 5)
+    drawLabel('submit', 75+125, app.height*0.65 + 60, size = 55, font = 'monospace',\
+              align = 'center', bold = True)
+
 
 
 def getScore(app):
-
-    if app.done:
-        secret = [72, 201, 82]
-        redList = []
-        blueList = []
-        greenList = []
-        for row in range(app.userRows):
-            for col in range(app.userCols):
-                red, blue, green = getRGB(app.board[row][col])
-                redList.append(red)
-                blueList.append(blue)
-                greenList.append(green)
-    score = 1- ((abs(getAverage(redList)-secret[0]), \
-        abs(getAverage(blueList)-secret[1]), \
-        abs(getAverage(greenList) - secret[2]))) * 100
-    return score
-
-def getRBG(str):
-    d = {'lightGreen': [144, 238, 144], 'oliveDrab': [107, 142, 35],\
-         'darkGreen': [0, 100, 0], 'seaGreen': [46, 139, 87]}
+    secret = [72, 201, 82]
+    red = getAverageColor(app)[0] 
+    blue = getAverageColor(app)[1]
+    green = getAverageColor(app)[2]
+    print(red,blue,green)
+    print(secret[0], secret[1], secret[2])
+    # print(type(red), type(secret[0]))
+    
+    app.score = (1 - (threeDist(red, blue, green, secret[0], secret[1],secret[2]) / 255)) * 100
+    return int(app.score)
+    
+#d = √((x2 - x1)² + (y2 - y1)² + (z2 - z1)²
+def threeDist(x1, y1, z1, x2, y2,z2):
+    return ((x2-x1)**2 + (y2-y1)**2+(z2-z1)**2)**0.5
+def getRGB(str):
+    d = {'red': [255, 0, 0], 'blue': [0, 0, 255],\
+         'yellow': [255, 255, 0], 'white': [255,255,255]}
     return d[str]
 
 
@@ -51,7 +75,8 @@ def getAverage(L):
     total = 0
     for val in L:
         total += val
-    return total/len(L)
+    return total//len(L)
+
 def drawSelectionLabels(app):
     if app.fillColor == 'No Color':
             drawLabel(f'No color is currently selected', 920, 650, \
@@ -73,10 +98,33 @@ def dist(x1, y1, x2, y2):
 def onMousePress(app, mouseX, mouseY):
     if inColorPalette(app, mouseX, mouseY):
         app.fillColor = getColorFromPalette(app, mouseX, mouseY)
+    if inSubmitBox(app, mouseX, mouseY):
+        app.submitColor = rgb(252, 98, 170)
+        app.submitted = True
+        app.done = True
+        app.score = getScore(app)
+        
+def inSubmitBox(app,mouseX, mouseY):
+    if mouseX < 75 or mouseX > 250+75 or mouseY < app.height*0.65 or \
+    mouseY > app.height*0.65 + 120:
+        return False
+    return True
 
+def getAverageColor(app):
+    redList = []
+    blueList = []
+    greenList = []
+    for row in range(app.userRows):
+        for col in range(app.userCols):
+            red, blue, green = getRGB(app.board[row][col])
+            redList.append(red)
+            blueList.append(blue)
+            greenList.append(green)
+    return [getAverage(redList), getAverage(blueList), getAverage(greenList)]
     
 def onMouseDrag(app, mouseX, mouseY):
-    # print(mouseX,mouseY)
+    app.mixColor = rgb(getAverageColor(app)[0], getAverageColor(app)[1], getAverageColor(app)[2])
+    # print(app.mixColor, getAverageColor(app)[0], getAverageColor(app)[1], getAverageColor(app)[2])
     if onBoard(app, mouseX, mouseY):
         row = int((mouseX - app.userBoardLeft) // app.userSquare)
         col = int((mouseY - app.userBoardTop) // app.userSquare)
@@ -102,13 +150,13 @@ def inColorPalette(app, mouseX, mouseY):
 
 def getColorFromPalette(app, mouseX, mouseY):
     if mouseX > 720 and mouseX < 920 and mouseY > 240 and mouseY < 440: 
-        return 'seaGreen'
+        return 'red'
     if mouseX > 920 and mouseX < 1120 and mouseY > 240 and mouseY < 440:
-        return 'oliveDrab'
+        return 'blue'
     if mouseX > 920 and mouseX < 1120 and mouseY >= 440 and mouseY < 640:
-        return 'darkGreen'
+        return 'white'
     if mouseX > 720 and mouseX < 1120 and mouseY >= 440 and mouseY < 640:
-        return 'lightGreen'
+        return 'yellow'
 
 def drawCell(app, row, col, fill):
     drawRect(app.userBoardLeft+(app.userSquare*row), app.userBoardTop+(app.userSquare*col), \
@@ -128,21 +176,21 @@ def drawBackground(app):
                 bold = True, align = 'center')
     
     #Snail Image!
-    drawRect(200,400,250,250, align = 'center', fill = app.secretColor)
-    drawCircle(200,400,100, fill = gradient(rgb(0,0,100), 'white'))
-    drawImage(app.url, 200, app.height/2, align = 'center')
+    drawRect(200,app.height *0.3+125,250,250, align = 'center', fill = app.secretColor)
+    drawCircle(200,app.height *0.3+125,100, fill = gradient(rgb(0,0,100), 'white'))
+    drawImage(app.url, 200, app.height *0.3+125, align = 'center')
 
     #Color Palette
     drawLabel("Nature's finest color palette", app.width*0.77, app.height * 0.27, \
                size = 20, font = 'monospace', bold = True)
     drawRect(app.width*0.6, app.height *0.3,app.squareLength, \
-             app.squareLength, fill = rgb(46, 139, 87), border = 'black')  # seaGreen
+             app.squareLength, fill = rgb(255, 0, 0), border = 'black')  # red
     drawRect(app.width*0.6,app.height * 0.55,app.squareLength, \
-             app.squareLength, fill = rgb(144, 238, 144), border = 'black') # lightGreen
+             app.squareLength, fill = rgb(255, 255, 0), border = 'black') # yellow
     drawRect(app.width*0.6+app.squareLength,app.height * 0.3,app.squareLength, \
-             app.squareLength, fill = rgb(107, 142, 35), border = 'black') #oliveDrab
+             app.squareLength, fill = rgb(0, 0, 255), border = 'black') #blue
     drawRect(app.width*0.6+app.squareLength,app.height * 0.55,app.squareLength, \
-             app.squareLength, fill = rgb(0, 100, 0), border = 'black') # darkGreen
+             app.squareLength, fill = rgb(255, 255, 255), border = 'black') # white
     
     
 def main():
