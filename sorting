@@ -34,26 +34,32 @@ def redrawAll(app):
     # Draw lives on board (loop through lives)
     if app.splashScreen:
         drawSplashScreen(app)
+    
+    elif app.gameOver:
+        drawRect(0, 0, app.width, app.height, fill=app.pinkColor)
+        drawLabel('Game Over!', app.width/2, app.height/2-150, size=60,
+                  bold=True, font='monospace', align='center')
+        # Home button?
+        drawLabel('Click to try again', app.width/2, app.height/2-80,
+                   size=30, bold=True, font='monospace', align='center')
+        drawLabel('Or press the home button to return'+
+                  ' to the main page', app.width/2, app.height/2-50,
+                   size=30, bold=True, font='monospace', align='center')
 
     else:
-        if app.gameOver:
-            drawLabel('Game Over!', app.width/2, app.height/2-150, size=60, bold=True,
-                    font='monospace', align='center')
-            # Home button?
-            drawLabel('Click to try again or press the home button to return to the main page',
-                      app.width/2, app.height/2-100, size=60, bold=True, font='monospace', align='center')
-        if app.currentSnail:
-            drawImage(app.currentSnail['image'], app.snailX, app.snailY)
-
         drawRect(0, 0, app.width, app.height, fill=app.pinkColor)
 
         # Sorting areas
         drawRect(0, app.height-150, app.width/2, 150, fill='lightSeaGreen')
         drawLabel("Aquatic", app.width/4, app.height-75, size=40,
                 bold=True, font='monospace')
-        drawRect(app.width/2, app.height-150, app.width/2, 150, fill='oliveDrab')
+        drawRect(app.width/2, app.height-150, app.width/2, 150,
+                 fill='oliveDrab')
         drawLabel("Land", 3*app.width/4, app.height-75, size=40,
                 bold=True, font='monospace')
+        
+        if app.currentSnail:
+            drawImage(app.currentSnail['image'], app.snailX, app.snailY)
 
 def drawSplashScreen(app):
     drawRect(0, 0, app.width, app.height, fill=app.pinkColor)
@@ -78,6 +84,7 @@ def onMousePress(app, mouseX, mouseY):
         app.dragOffsetY = mouseY - app.snailY
     
     if app.gameOver:
+        app.gameOver = False
         app.splashScreen = True
 
 def onMouseDrag(app, mouseX, mouseY):
@@ -91,9 +98,9 @@ def onMouseRelease(app, mouseX, mouseY):
 
     if app.snailY >= app.height - 150:
         if mouseX < app.width/2 and app.currentSnail['type'] == 'aquatic':
-            loadNewSnail(app)
+            loadSnail(app)
         elif mouseX >= app.width/2 and app.currentSnail['type'] == 'land':
-            loadNewSnail(app)
+            loadSnail(app)
         else:
             app.lives -= 1
             if app.lives == 0:
