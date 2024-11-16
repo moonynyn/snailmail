@@ -48,7 +48,62 @@ def loadMazeBarriers(app):
         app.board[3][col] = 'darkGreen'
     for row in range(3, 11):
         app.board[row][13] = 'darkGreen'
-    
+    app.board[8][8] = 'darkGreen'
+    for row in range(5, 9):
+        app.board[row][9] = 'darkGreen'
+    for row in range(5, 11):
+        app.board[row][11] = 'darkGreen'
+    for col in range(9, 12):
+        app.board[10][col] = 'darkGreen'
+    for row in range(10, 14):
+        app.board[row][9] = 'darkGreen'
+    for col in range(10, 13):
+        app.board[12][col] = 'darkGreen'
+    for row in range(12, 14):
+        app.board[row][12] = 'darkGreen'
+        app.board[row][14] = 'darkGreen'
+    for row in range(7, 13):
+        app.board[row][15] = 'darkGreen'
+    for row in range(6):
+        app.board[row][16] = 'darkGreen'
+    for col in range(15, 19):
+        app.board[5][col] = 'darkGreen'
+    for col in range(15, 18):
+        app.board[7][col] = 'darkGreen'
+    for row in range(8, 13):
+        app.board[row][17] = 'darkGreen'
+    app.board[5][10] = 'darkGreen'    
+    app.board[0][18] = 'darkGreen'
+    for col in range(18, 26):
+        app.board[1][col] = 'darkGreen'
+    for row in range(3, 5):
+        app.board[row][18] = 'darkGreen'
+    for col in range(19, 23):
+        app.board[3][col] = 'darkGreen'
+    for col in range(18, 22):
+        app.board[11][col] = 'darkGreen'
+    app.board[12][17] = None
+    for row in range(7, 10):
+        app.board[row][19] = 'darkGreen'
+    for row in range(5, 8):
+        app.board[row][20] = 'darkGreen'
+    for col in range(21, 25):
+        app.board[7][col] = 'darkGreen'
+    for row in range(3, 6):
+        app.board[row][22] = 'darkGreen'
+    for row in range(3, 8):
+        app.board[row][24] = 'darkGreen'
+    app.board[3][25] = 'darkGreen'
+    for col in range(21, 24):
+        app.board[9][col] = 'darkGreen'
+    for row in range(9, 14):
+        app.board[row][23] = 'darkGreen'
+        app.board[row][25] = 'darkGreen'
+    for col in range(17, 26):
+        app.board[13][col] = 'darkGreen'
+    for col in range(26):
+        app.board[15][col] = 'darkGreen'
+    # drawRect()
 
 def drawBackground(app):
     loadMazeBarriers(app)
