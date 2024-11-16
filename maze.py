@@ -13,6 +13,8 @@ def onAppStart(app):
     app.cols = int((app.width - 160)/app.blocksWidth)
     app.cellBorderWidth = 2
     app.board = [([None] * app.cols) for row in range(app.rows)]
+    app.url = 'resizedClearSnail.png'
+    app.snailLocation = [60, 180]
 
 def loadMazeBarriers(app):
     for col in range(4):
@@ -133,12 +135,44 @@ def getCellSize(app):
     cellHeight = app.boardHeight / app.rows
     return (cellWidth, cellHeight)
 
+def onKeyPress(app, key):
+    if key == 'up':
+        if isLegal(0, -40):
+            app.snailLocation[1] -= 40
+    elif key == 'down':
+        if isLegal(0, 40):
+            app.snailLocation[1] += 40
+    elif key == 'right':
+        if isLega(40, 0):
+            app.snailLocation[0] += 40
+    elif key == 'left':
+        if isLegal(0, -40):
+            app.snailLocation[0] -= 40
+
+def isLegal(xDirection, yDirection):
+    x, y = app.snailLocation
+    x += xDirection
+    y += yDirection
+    if x < 60 or x > 1120:
+        return False
+    if y < 80 or y > 720:
+        return False
+    blockX = (x - 60)/app.blocksWidth
+    blockY = (y - 60)/app.blocksHeight
+    if app.board[blockX][blockY] != None:
+        return False
+    return True
+
 def redrawAll(app):
     #green background
     drawBackground(app)
     #draws the grid for the maze
     drawBoard(app)
     drawBoardBorder(app)
+    #SNAIL!!!!
+    imageWidth, imageHeight = getImageSize(app.url)
+    x, y = app.snailLocation
+    drawImage(app.url, x, y, width = imageWidth//3, height = imageHeight//3, align = 'center')
 
 def main():
     runApp()
