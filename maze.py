@@ -137,28 +137,32 @@ def getCellSize(app):
 
 def onKeyPress(app, key):
     if key == 'up':
-        if isLegal(0, -40):
+        if isLegal(app, 0, -40):
             app.snailLocation[1] -= 40
-    elif key == 'down':
-        if isLegal(0, 40):
+    if key == 'down':
+        if isLegal(app, 0, 40):
             app.snailLocation[1] += 40
-    elif key == 'right':
-        if isLega(40, 0):
+    if key == 'right':
+        if isLegal(app, 40, 0):
             app.snailLocation[0] += 40
-    elif key == 'left':
-        if isLegal(0, -40):
+    if key == 'left':
+        if isLegal(app, 0, -40):
             app.snailLocation[0] -= 40
 
-def isLegal(xDirection, yDirection):
+def isLegal(app, xDirection, yDirection):
     x, y = app.snailLocation
+    print(x, y, xDirection, yDirection)
     x += xDirection
     y += yDirection
-    if x < 60 or x > 1120:
+    # print(x, y)
+    if x < 60 or x >= 1120 or y < 80 or y >= 720:
         return False
-    if y < 80 or y > 720:
+    else:
+        return True
+    blockX = (x - 60)//app.blocksWidth
+    blockY = (y - 60)//app.blocksHeight
+    if blockX < 0 or blockX >= len(app.board[0]) or blockY < 0 or blockY >= len(app.board):
         return False
-    blockX = (x - 60)/app.blocksWidth
-    blockY = (y - 60)/app.blocksHeight
     if app.board[blockX][blockY] != None:
         return False
     return True
